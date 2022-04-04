@@ -4,5 +4,5 @@ from folks.views import userRegistration
 
 
 urlpatterns = [
-    path('user/registre/', userRegistration)
+    path('user/register/', userRegistration)
 ]

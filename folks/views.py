@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -15,5 +16,5 @@ def userRegistration(request):
     if serializer.is_valid():
         new_user = serializer.save()
         if new_user:
-            return Response(status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(serializer.data, status=201)
+    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
