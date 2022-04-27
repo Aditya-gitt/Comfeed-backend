@@ -10,7 +10,7 @@ class Chat(models.Model):
     title = models.TextField(blank=False, null=False, default='Title')
     feed = models.TextField(blank=False, null=False, default='Feed')
     time = models.TimeField(blank=True, auto_now_add=True)
-    date = models.DateField(blank=True, auto_now_add=True)
+    date = models.DateField(blank=True)
     feed_type = models.CharField(max_length=1, 
                 choices=(('p', 'positive'), ('n', 'negative')),
                 blank=False, default=None)
