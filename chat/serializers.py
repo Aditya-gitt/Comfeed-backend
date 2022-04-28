@@ -11,7 +11,6 @@ class PostFeedSerializer(serializers.ModelSerializer):
 class GetChatSerializer(serializers.ModelSerializer): 
     downvotesCount = serializers.SerializerMethodField("get_downvotes_count")#source="downvotesCount")
     upvotesCount = serializers.SerializerMethodField("get_upvotes_count")#source="upvotesCount")
-
     class Meta:
         model = Chat
         fields = ('author_id', 'chat_id', 'title', 'feed', 'feed_type', 'tags', 'date', 'time', "downvotesCount", "upvotesCount")
