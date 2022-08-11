@@ -33,7 +33,8 @@ def get_chat_model(data):
 @api_view(['get'])
 @permission_classes([AllowAny,])
 def getChat(request):
-    serializer = GetChatSerializer(get_chat(request), many=True)
+    context = {'id': request.data['user_id']}
+    serializer = GetChatSerializer(get_chat(request), context=context, many=True)
     return JsonResponse({
         "chats": serializer.data,
         "has_more": has_more(int(request.GET.get('offset'))) 
@@ -42,7 +43,7 @@ def getChat(request):
 def get_chat(request):
     limit = int(request.GET.get('limit'))
     offset = int(request.GET.get('offset'))
-    chats = list(Chat.objects.all()[offset: offset + limit])
+    chats = list(Chat.objects.all().order_by('date').order_by('time')[offset: offset + limit])
     return chats
 
 def has_more(offset):
@@ -70,24 +71,28 @@ def searchChats(request):
 @permission_classes([IsAuthenticated,])
 def upvote(request):
     upvoter = User.objects.get(id=request.data['author_id'])
-    # Chat.objects.get(chat_id=request.data['chat_id']).upvotes.add(upvoter)
-    if(Chat.objects.get(chat_id=request.data['chat_id']).downvotes.filter(id=request.data['author_id']).exists()):
-        Chat.objects.get(chat_id=request.data['chat_id']).downvotes.remove(upvoter)
-    if(Chat.objects.get(chat_id=request.data['chat_id']).upvotes.filter(id=request.data['author_id']).exists()):
+    if Chat.objects.get(chat_id=request.data['chat_id']).upvotes.filter(id=request.data['author_id']).exists():
         Chat.objects.get(chat_id=request.data['chat_id']).upvotes.remove(upvoter)
-    else:
-        Chat.objects.get(chat_id=request.data['chat_id']).upvotes.add(upvoter)
+    else :
+        if Chat.objects.get(chat_id=request.data['chat_id']).downvotes.filter(id=request.data['author_id']).exists():
+            Chat.objects.get(chat_id=request.data['chat_id']).downvotes.remove(upvoter)
+            Chat.objects.get(chat_id=request.data['chat_id']).upvotes.add(upvoter)
+        else :
+            Chat.objects.get(chat_id=request.data['chat_id']).upvotes.add(upvoter)
     return Response(status.HTTP_202_ACCEPTED)
+
 
 @api_view(['get'])
 @permission_classes([IsAuthenticated,])
 def downvote(request):
     upvoter = User.objects.get(id=request.data['author_id'])
-    # Chat.objects.get(chat_id=request.data['chat_id']).upvotes.add(upvoter)
-    if(Chat.objects.get(chat_id=request.data['chat_id']).upvotes.filter(id=request.data['author_id']).exists()):
-        Chat.objects.get(chat_id=request.data['chat_id']).upvotes.remove(upvoter)
-    if(Chat.objects.get(chat_id=request.data['chat_id']).downvotes.filter(id=request.data['author_id']).exists()):
+    if Chat.objects.get(chat_id=request.data['chat_id']).downvotes.filter(id=request.data['author_id']).exists():
         Chat.objects.get(chat_id=request.data['chat_id']).downvotes.remove(upvoter)
-    else:
-        Chat.objects.get(chat_id=request.data['chat_id']).downvotes.add(upvoter)
+    else :
+        if Chat.objects.get(chat_id=request.data['chat_id']).upvotes.filter(id=request.data['author_id']).exists():
+            Chat.objects.get(chat_id=request.data['chat_id']).upvotes.remove(upvoter)
+            Chat.objects.get(chat_id=request.data['chat_id']).downvotes.add(upvoter)
+        else :
+            Chat.objects.get(chat_id=request.data['chat_id']).downvotes.add(upvoter)
     return Response(status.HTTP_202_ACCEPTED)
+
