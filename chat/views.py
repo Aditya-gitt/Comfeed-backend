@@ -1,7 +1,5 @@
-import logging
-from turtle import pos
+from tokenize import String
 from django.http import JsonResponse
-from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from chat.models import Chat
@@ -52,9 +50,10 @@ def has_more(offset):
     return True
 
 @api_view(['get'])
-@permission_classes([AllowAny,])
+@permission_classes([IsAuthenticated,])
 def searchForChat(request):
-    serializer = GetChatSerializer(searchChats(request), many=True)
+    context = {'id': request.data['user_id']}
+    serializer = GetChatSerializer(searchChats(request), context=context, many=True)
     return JsonResponse({
         "chats": serializer.data,
         "has_more": has_more(int(request.GET.get('offset'))) 
@@ -62,9 +61,14 @@ def searchForChat(request):
 
 #json_array_contains('tags'," + request.GET.get('tag') + ")"
 def searchChats(request):
+    tags = list(request.data.get('tags'))
     limit = int(request.GET.get('limit'))
     offset = int(request.GET.get('offset'))
-    chats = list(Chat.objects.raw("SELECT * from chat_chat where tags")[offset: offset + limit])
+    chats = []
+    # chats = list(Chat.objects.raw("SELECT * from chat_chat where tags")[offset: offset + limit])
+    for tag in tags:
+        query = "SELECT * from chat_chat where tags like " + "'%" + str(tag) + "%'"
+        chats.append(list(Chat.objects.raw(query)[offset: offset + limit]))
     return chats
 
 @api_view(['get'])
@@ -80,7 +84,6 @@ def upvote(request):
         else :
             Chat.objects.get(chat_id=request.data['chat_id']).upvotes.add(upvoter)
     return Response(status.HTTP_202_ACCEPTED)
-
 
 @api_view(['get'])
 @permission_classes([IsAuthenticated,])
