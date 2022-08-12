@@ -28,7 +28,7 @@ def get_chat_model(data):
     data["downvotes"] = {}
     return data
 
-@api_view(['get'])
+@api_view(['post'])
 @permission_classes([AllowAny,])
 def getChat(request):
     context = {'id': request.data['user_id']}
@@ -71,7 +71,7 @@ def searchChats(request):
         chats.append(list(Chat.objects.raw(query)[offset: offset + limit]))
     return chats
 
-@api_view(['get'])
+@api_view(['post'])
 @permission_classes([IsAuthenticated,])
 def upvote(request):
     upvoter = User.objects.get(id=request.data['author_id'])
@@ -85,7 +85,7 @@ def upvote(request):
             Chat.objects.get(chat_id=request.data['chat_id']).upvotes.add(upvoter)
     return Response(status.HTTP_202_ACCEPTED)
 
-@api_view(['get'])
+@api_view(['post'])
 @permission_classes([IsAuthenticated,])
 def downvote(request):
     upvoter = User.objects.get(id=request.data['author_id'])

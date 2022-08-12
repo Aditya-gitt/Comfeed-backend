@@ -30,9 +30,9 @@ class GetChatSerializer(serializers.ModelSerializer):
         loggedin_user_id = self.context.get('id')
 
         if chat_object.downvotes.filter(id=loggedin_user_id).exists():
-            return 'down_voted'
+            return -1
         else :
             if chat_object.upvotes.filter(id=loggedin_user_id).exists():
-                return 'up_voted'
+                return 1
             else :
-                return 'not_voted'
+                return 0
