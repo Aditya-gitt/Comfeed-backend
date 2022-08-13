@@ -14,7 +14,7 @@ class Chat(models.Model):
     feed_type = models.CharField(max_length=1, 
                 choices=(('p', 'positive'), ('n', 'negative')),
                 blank=False, default=None)
-    tags =  models.JSONField(default={})
+    tags =  models.JSONField(default=dict)
     upvotes = models.ManyToManyField(User, related_name='chat1', default=None)
     downvotes = models.ManyToManyField(User, related_name='chat2', default=None)
 

@@ -24,7 +24,7 @@ class GetChatSerializer(serializers.ModelSerializer):
         return chat_object.upvotes.all().count()
 
     def get_username(self, chat_object): 
-        return chat_object.author_id.username;
+        return chat_object.author_id.username
 
     def get_vote(self, chat_object): 
         loggedin_user_id = self.context.get('id')

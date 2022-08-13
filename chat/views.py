@@ -21,9 +21,6 @@ def postFeed(request):
     return JsonResponse(postSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def get_chat_model(data):
-    #model = Chat(data)
-    # model.downvotes.clear()
-    # model.upvotes.clear()
     data["upvotes"] = {}
     data["downvotes"] = {}
     return data
@@ -41,7 +38,7 @@ def getChat(request):
 def get_chat(request):
     limit = int(request.GET.get('limit'))
     offset = int(request.GET.get('offset'))
-    chats = list(Chat.objects.all().order_by('date').order_by('time')[offset: offset + limit])
+    chats = list(Chat.objects.all().order_by('-date').order_by('-time')[offset: offset + limit])
     return chats
 
 def has_more(offset):
@@ -49,7 +46,7 @@ def has_more(offset):
         return False
     return True
 
-@api_view(['get'])
+@api_view(['post'])
 @permission_classes([IsAuthenticated,])
 def searchForChat(request):
     context = {'id': request.data['user_id']}
@@ -61,14 +58,11 @@ def searchForChat(request):
 
 #json_array_contains('tags'," + request.GET.get('tag') + ")"
 def searchChats(request):
-    tags = list(request.data.get('tags'))
+    tag = request.data.get('tags')
     limit = int(request.GET.get('limit'))
     offset = int(request.GET.get('offset'))
-    chats = []
-    # chats = list(Chat.objects.raw("SELECT * from chat_chat where tags")[offset: offset + limit])
-    for tag in tags:
-        query = "SELECT * from chat_chat where tags like " + "'%" + str(tag) + "%'"
-        chats.append(list(Chat.objects.raw(query)[offset: offset + limit]))
+    query = "SELECT * from chat_chat where tags like " + "'%" + str(tag) + "%' order by date, time"
+    chats = list(Chat.objects.raw(query)[offset: offset + limit])
     return chats
 
 @api_view(['post'])
